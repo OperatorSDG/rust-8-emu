@@ -40,7 +40,7 @@ mod tests {
     fn cpu_new_initializes_registors() {
         let cpu = Cpu::new();
         assert_eq!(cpu.i, 0);
-        assert_eq!(cpu.pc, 0);
+        assert_eq!(cpu.pc, 0x200);
         assert_eq!(cpu.v, [0; 16]);
     }
 
