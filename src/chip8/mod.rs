@@ -19,6 +19,16 @@ impl Chip8 {
     }
 }
 
+impl Default for Chip8 {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+//===================================================
+//                  UNIT TESTS
+//===================================================
+
 #[cfg(test)]
 mod tests {
     use crate::chip8::memory::Memory;

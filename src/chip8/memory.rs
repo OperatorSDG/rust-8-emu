@@ -7,3 +7,9 @@ impl Memory {
         Self { ram: [0; 4096] }
     }
 }
+
+impl Default for Memory {
+    fn default() -> Self {
+        Self::new()
+    }
+}
