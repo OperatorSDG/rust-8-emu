@@ -27,6 +27,17 @@ impl Chip8 {
 
     fn execute(&mut self, opcode: u16) {
         match opcode & 0xF000 {
+            0x6000 => {
+                let x = ((opcode & 0x0F00) >> 8) as usize;
+                let kk = (opcode & 0x00FF) as u8;
+                self.cpu.v[x] = kk;
+            }
+            0x7000 => {
+                let x = ((opcode & 0x0F00) >> 8) as usize;
+                let kk = (opcode & 0x00FF) as u8; 
+
+                self.cpu.v[x] = self.cpu.v[x].wrapping_add(kk);
+            }
             0x0000 => {
                 // CLS or RET
             }
@@ -49,10 +60,9 @@ impl Default for Chip8 {
 
 #[cfg(test)]
 mod tests {
-    use crate::chip8::memory::Memory;
-
     use super::*;
     use cpu::Cpu;
+    use memory::Memory;
 
     #[test]
     fn cpu_new_initializes_registors() {
@@ -65,7 +75,7 @@ mod tests {
     #[test]
     fn memory_new_initializes_memory() {
         let memory = Memory::new();
-        assert_eq!(memory.ram, [0; 4096])
+        assert_eq!(memory.ram, [0; 4096]);
     }
 
     #[test]
@@ -84,6 +94,34 @@ mod tests {
 
         chip8.cycle();
 
-        assert_eq!(chip8.cpu.pc, 0x202)
+        assert_eq!(chip8.cpu.pc, 0x202);
+    }
+
+    #[test]
+    fn ld_vx_bytes_sets_registers() {
+        let mut chip8 = Chip8::default();
+
+        chip8.memory.ram[0x200] = 0x61;
+        chip8.memory.ram[0x201] = 0x23;
+
+        chip8.cycle();
+
+        assert_eq!(chip8.cpu.v[1], 0x23);
+    }
+
+    #[test]
+    fn add_vx_bytes_adds_without_affecting_vf() {
+        let mut chip8 = Chip8::default();
+
+        // Load V1 with 10
+        chip8.cpu.v[0x1] = 10;
+
+        chip8.memory.ram[0x200] = 0x71;
+        chip8.memory.ram[0x201] = 0x05;
+
+        chip8.cycle();
+
+        assert_eq!(chip8.cpu.v[0x1], 15); 
+        assert_eq!(chip8.cpu.v[0xF], 0); // Check VF(carry-flag) flip
     }
 }
