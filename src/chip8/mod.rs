@@ -15,7 +15,25 @@ impl Chip8 {
     }
 
     pub fn cycle(&mut self) {
-        // Fetch, Decode, Execute cycle implementation goes here
+        // Fetch
+        let pc = self.cpu.pc as usize;
+        let opcode = (self.memory.ram[pc] as u16) << 8 | (self.memory.ram[pc + 1] as u16);
+
+        self.cpu.pc += 2;
+
+        // Decode + Execute
+        self.execute(opcode);
+    }
+
+    fn execute(&mut self, opcode: u16) {
+        match opcode & 0xF000 {
+            0x0000 => {
+                // CLS or RET
+            }
+            _ => {
+                // unknown OPCODE
+            }
+        }
     }
 }
 
@@ -55,5 +73,17 @@ mod tests {
         let chip8 = Chip8::new();
         assert_eq!(chip8.cpu.pc, 0x200);
         assert_eq!(chip8.memory.ram, [0; 4096]);
+    }
+
+    #[test]
+    fn cycle_fetches_code_and_increments_pc() {
+        let mut chip8 = Chip8::default();
+
+        chip8.memory.ram[0x200] = 0x12;
+        chip8.memory.ram[0x201] = 0x34;
+
+        chip8.cycle();
+
+        assert_eq!(chip8.cpu.pc, 0x202)
     }
 }
